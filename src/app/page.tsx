@@ -1,21 +1,22 @@
 'use client';
 import { Title } from './components/common/Title';
 import { AddTodo } from './components/todo/AddTodo';
-import { TodoList } from './components/todo/TodoList';
-import { useTodoContext } from './context/TodoContext';
+import { KanbanBoard } from './components/todo/KanbanBoard';
 
 export default function Home() {
-  const { list } = useTodoContext();
 
   return (
     <main className={style.main}>
-      <Title content={'Things to do'} />
-      <AddTodo />
-      <TodoList items={list} />
+      <div className={style.wrapper}>
+        <Title content={'Things to do'} />
+        <AddTodo />
+        <KanbanBoard />
+      </div>
     </main>
   );
 }
 
 const style = {
-  main: 'w-[300px] min-h-screen flex flex-col gap-8 items-center mx-auto py-20',
+  main: 'min-w-[320px] max-w-[1200px] min-h-screen px-4 py-20 mx-auto sm:px-8',
+  wrapper: 'flex flex-col gap-8',
 };
