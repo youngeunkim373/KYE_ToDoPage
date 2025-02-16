@@ -1,7 +1,6 @@
 export interface TodoItem {
   id: number;
   content: string;
-  status: TodoStatus;
 }
 
 export enum TodoStatus {

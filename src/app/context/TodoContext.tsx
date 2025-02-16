@@ -1,5 +1,6 @@
 'use client';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import { DropResult } from '@hello-pangea/dnd';
 import { TodoItem, TodoStatus } from '../components/todo/todo.interface';
 
 // @ts-expect-error: known issue
@@ -21,7 +22,6 @@ const useTodo = () => {
     const item: TodoItem = {
       id: Date.now(),
       content,
-      status: TodoStatus.TODO,
     };
 
     setList((prev) => {
@@ -29,15 +29,31 @@ const useTodo = () => {
       localStorage.setItem('list', JSON.stringify(newList));
       return newList;
     });
-
   };
 
   const removeItem = ({ id, status }: {
     id: TodoItem['id'],
-    status: TodoItem['status'],
+    status: TodoStatus,
   }) => {
     setList((prev) => {
       const newList = { ...prev, [status]: prev[status].filter((v) => v.id !== id) };
+      localStorage.setItem('list', JSON.stringify(newList));
+      return newList;
+    });
+  };
+
+  const onDragEndReorderItems = (result: DropResult) => {
+    const { source, destination } = result;
+    if (!destination) return;
+
+    const sourceId = source.droppableId as TodoStatus;
+    const destinationId = destination.droppableId as TodoStatus;
+
+    setList((prev) => {
+      const newList = { ...prev };
+      const [removed] = newList[sourceId].splice(source.index, 1);
+      newList[destinationId].splice(destination.index, 0, removed);
+
       localStorage.setItem('list', JSON.stringify(newList));
       return newList;
     });
@@ -51,6 +67,7 @@ const useTodo = () => {
     list,
     addItem,
     removeItem,
+    onDragEndReorderItems,
   };
 };
 
