@@ -1,90 +1,168 @@
 'use client';
-import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { DropResult } from '@hello-pangea/dnd';
-import { TodoItemProps, TodoStatus } from '../components/todo/todo.interface';
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+
+import { BoardProps } from '../components/board/board.interface';
+import { TodoItemProps } from '../components/todo/todo.interface';
+import { reorderInSameList } from '../utils/dragAndDropUtils';
 
 const TodoContext = createContext<ReturnType<typeof useTodo> | null>(null);
 
-const initialList = {
-  'TODO': [],
-  'INPROGRESS': [],
-  'DONE': [],
-};
+const initialList: BoardProps[] = [{ id: 'TODO', title: 'To do', items: [] }];
 
-const saveToStorage = (list: Record<TodoStatus, TodoItemProps[]>) => {
+const saveStorage = (list: BoardProps[]) => {
   localStorage.setItem('list', JSON.stringify(list));
 };
 
-const useTodo = () => {
-  const [list, setList] = useState<Record<TodoStatus, TodoItemProps[]>>(initialList);
 
+const useTodo = () => {
+  const [list, setList] = useState<BoardProps[]>(initialList);
+  const [selectedBoard, setSelectedBoard] = useState<BoardProps>(initialList[0]);
+
+  /* -------------------- Common -------------------- */
+  const saveList = (list: BoardProps[]) => {
+    setList(list);
+    saveStorage(list);
+  };
+
+  const saveSelectedBoard = (list: BoardProps[]) => {
+    const updatedBoard = list.find(board => board.id === selectedBoard.id);
+    if (updatedBoard) setSelectedBoard(updatedBoard);
+  };
+
+  /* -------------------- Board -------------------- */
   const getList = () => {
     try {
       const storedList = localStorage.getItem('list');
-      if (storedList) setList(JSON.parse(storedList));
+
+      if (storedList) {
+        const parsedList = JSON.parse(storedList);
+        setList(parsedList);
+        setSelectedBoard(parsedList[0]);
+      }
     } catch (error) {
       console.error('Failed to parse list:', error);
-      setList(initialList);
-      localStorage.removeItem('list');
+      saveList(initialList);
+    };
+  };
+
+  const changeSelectedBoard = (id: BoardProps['id']) => {
+    const newSelectedBoard = list.find(board => board.id === id);
+    if (newSelectedBoard) setSelectedBoard(newSelectedBoard);
+  };
+
+  const addBoard = (title: BoardProps['title']) => {
+    const newBoard: BoardProps = {
+      id: uuidv4(),
+      title,
+      items: [],
+    };
+
+    const newList = [...list, newBoard];
+    saveList(newList);
+  };
+
+  const editBoard = ({ id, title }: {
+    id: BoardProps['id'],
+    title: BoardProps['title'],
+  }) => {
+    const newList = list.map(board => board.id === id ? { ...board, title } : board);
+    saveList(newList);
+    changeSelectedBoard(id);
+  };
+
+  const removeBoard = (id: BoardProps['id']) => {
+    const newList = Array.from(list).filter(board => board.id !== id);
+    saveList(newList);
+  };
+
+  const reorderBoardOnDragEnd = (result: DropResult) => {
+    const { source, destination } = result;
+
+    if (destination) {
+      const newList = reorderInSameList({
+        list,
+        startIndex: source.index,
+        endIndex: destination.index
+      });
+
+      saveList(newList);
     }
   };
 
-  const addItem = (content: TodoItemProps['content']) => {
-    const item: TodoItemProps = {
-      id: Date.now(),
+  /* -------------------- Todo -------------------- */
+  const addTodo = (content: TodoItemProps['content']) => {
+    const newTodo: TodoItemProps = {
+      id: uuidv4(),
       content,
+      status: false,
     };
 
-    setList((prev) => {
-      const newList = { ...prev, 'TODO': [...prev.TODO, item] };
-      saveToStorage(newList);
-      return newList;
-    });
+    const newList = list.map(
+      board => board.id === selectedBoard.id
+        ? { ...board, items: [...board.items, newTodo] }
+        : board
+    );
+    saveList(newList);
+    saveSelectedBoard(newList);
   };
 
-  const editItem = ({ id, status }: {
+  const editTodo = ({ id, content }: {
     id: TodoItemProps['id'],
-    status: TodoStatus,
+    content: TodoItemProps['content'],
   }) => {
-    const item: TodoItemProps = {
-      id: Date.now(),
-      content,
-    };
-
-    setList((prev) => {
-      const newList = { ...prev, 'TODO': [...prev.TODO, item] };
-      saveToStorage(newList);
-      return newList;
-    });
+    const newList = list.map(board =>
+      board.id === selectedBoard.id
+        ? {
+          ...board,
+          items: board.items.map(todo =>
+            todo.id === id
+              ? { ...todo, content }
+              : todo
+          ),
+        }
+        : board
+    );
+    saveList(newList);
+    saveSelectedBoard(newList);
   };
 
-  const removeItem = ({ id, status }: {
-    id: TodoItemProps['id'],
-    status: TodoStatus,
-  }) => {
-    setList((prev) => {
-      const newList = { ...prev, [status]: prev[status].filter((v) => v.id !== id) };
-      saveToStorage(newList);
-      return newList;
-    });
+  const removeTodo = (id: TodoItemProps['id']) => {
+    const newList = list.map(board =>
+      board.id === selectedBoard.id
+        ? { ...board, items: board.items.filter(todo => todo.id !== id) }
+        : board
+    );
+    saveList(newList);
+    saveSelectedBoard(newList);
   };
 
-  const onDragEndReorderItems = (result: DropResult) => {
+  const reorderTodoOnDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
 
-    const sourceId = source.droppableId as TodoStatus;
-    const destinationId = destination.droppableId as TodoStatus;
+    console.log(result)
+    if (source.droppableId === destination.droppableId) {
+      const newBoard = reorderInSameList({
+        list: selectedBoard.items,
+        startIndex: source.index,
+        endIndex: destination.index
+      });
 
-    setList((prev) => {
-      const newList = { ...prev };
-      const [removed] = newList[sourceId].splice(source.index, 1);
-      newList[destinationId].splice(destination.index, 0, removed);
+      const newList = list.map(board => (
+        board.id === selectedBoard.id
+          ? { ...board, items: newBoard }
+          : board
+      ));
 
-      saveToStorage(newList);
-      return newList;
-    });
+      saveList(newList);
+      saveSelectedBoard(newList);
+    } else {
+      console.log('달라잉')
+    }
   };
+
 
   useEffect(() => {
     getList();
@@ -92,10 +170,16 @@ const useTodo = () => {
 
   return {
     list,
-    addItem,
-    editItem,
-    removeItem,
-    onDragEndReorderItems,
+    selectedBoard,
+    changeSelectedBoard,
+    addBoard,
+    editBoard,
+    removeBoard,
+    reorderBoardOnDragEnd,
+    addTodo,
+    editTodo,
+    removeTodo,
+    reorderTodoOnDragEnd,
   };
 };
 

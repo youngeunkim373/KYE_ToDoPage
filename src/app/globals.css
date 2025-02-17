@@ -25,3 +25,12 @@ input {
   border: 0;
   outline: 0;
 }
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge, Opera */
+}

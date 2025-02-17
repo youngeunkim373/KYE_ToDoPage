@@ -16,5 +16,6 @@ const style = `
   bg-blue rounded-md
   px-4 py-2
   transition-all duration-200
+  cursor-pointer
   hover:bg-blue-light
 `;

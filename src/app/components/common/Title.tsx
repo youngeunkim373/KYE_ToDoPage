@@ -1,16 +1,16 @@
 interface Props {
   content: string;
+  className?: string;
 }
 
-export function Title({ content }: Props) {
+export function Title({ content, className = '' }: Props) {
   return (
-    <h1 className={style}>
+    <p className={`${style} ${className}`}>
       {content}
-    </h1>
+    </p>
   );
 }
 
 const style = `
-  text-3xl font-semibold
-  text-left
+  text-2xl font-semibold text-left
 `;

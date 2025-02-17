@@ -6,14 +6,16 @@ import { Edit } from "@/app/assets/icons/Edit";
 import { Trash } from "@/app/assets/icons/Trash";
 import { useTodoContext } from "@/app/context/TodoContext";
 import { Input } from "../common/Input";
-import { TodoItemProps } from "./todo.interface";
+import { BoardProps } from "./board.interface";
 
-interface Props extends TodoItemProps {
+interface Props {
+  id: BoardProps['id'];
   index: number;
+  title: BoardProps['title'];
 }
 
-export function TodoItem({ id, content, status, index }: Props) {
-  const { editTodo, removeTodo } = useTodoContext();
+export function BoardItem({ id, index, title }: Props) {
+  const { changeSelectedBoard, editBoard, removeBoard } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
@@ -24,7 +26,7 @@ export function TodoItem({ id, content, status, index }: Props) {
       if (!inputRef.current) return;
 
       if (isEditable && !inputRef.current.contains(e.target as Node)) {
-        if (inputRef.current.value) editTodo({ id, content: inputRef.current.value });
+        if (inputRef.current.value) editBoard({ id, title: inputRef.current.value });
         setEditable(false);
       }
     };
@@ -38,6 +40,7 @@ export function TodoItem({ id, content, status, index }: Props) {
       {(provided) => (
         <li
           className={style.item}
+          onClick={() => changeSelectedBoard(id)}
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}>
@@ -48,11 +51,11 @@ export function TodoItem({ id, content, status, index }: Props) {
               <Input
                 allowClear={false}
                 className={style.content.input}
-                defaultValue={content}
+                defaultValue={title}
                 ref={inputRef} />
             ) : (
               <span className={style.content.span}>
-                {content}
+                {title}
               </span>
             )}
           </div>
@@ -61,7 +64,7 @@ export function TodoItem({ id, content, status, index }: Props) {
             <button onClick={() => setEditable(true)} >
               <Edit className={`${style.icon.common} ${style.icon.edit}`} />
             </button>
-            <button onClick={() => removeTodo(id)} >
+            <button onClick={() => removeBoard(id)} >
               <Trash className={`${style.icon.common} ${style.icon.remove}`} />
             </button>
           </div>
@@ -73,11 +76,12 @@ export function TodoItem({ id, content, status, index }: Props) {
 
 const style = {
   item: `
+      max-w-[320px]
       flex items-center gap-3
       rounded-lg
       px-4 py-2
       cursor-pointer
-      hover:bg-gray-100
+      hover:bg-white
       `,
   icon: {
     common: 'min-w-[20px] size-5 text-gray-400',
@@ -85,8 +89,8 @@ const style = {
     remove: 'hover:text-red-500',
   },
   content: {
-    wrapper: 'w-full overflow-auto scrollbar-hide',
-    input: 'w-full h-[23px] bg-transparent !p-0',
+    wrapper: 'max-w-[160px] overflow-auto scrollbar-hide',
+    input: '!w-full h-[23px] bg-transparent !p-0',
     span: 'inline-block min-w-[160px]',
   },
   buttons: {

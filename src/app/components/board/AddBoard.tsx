@@ -4,8 +4,8 @@ import { useTodoContext } from '@/app/context/TodoContext';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 
-export function AddTodo() {
-  const { addTodo } = useTodoContext();
+export function AddBoard() {
+  const { addBoard } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -13,10 +13,10 @@ export function AddTodo() {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const todoContent = formData.get('todoContent');
+    const boardTitle = formData.get('boardTitle');
 
-    if (todoContent) {
-      addTodo(todoContent.toString());
+    if (boardTitle) {
+      addBoard(boardTitle.toString());
     }
 
     if (inputRef.current) {
@@ -29,10 +29,10 @@ export function AddTodo() {
       className={style.wrapper}
       onSubmit={handleSubmit}>
       <Input
-        name={'todoContent'}
+        name={'boardTitle'}
         className={style.input}
         ref={inputRef}
-        placeholder={'할 일을 입력해주세요'} />
+        placeholder={'목록을 입력해주세요'} />
       <Button type={'submit'}>
         +
       </Button>

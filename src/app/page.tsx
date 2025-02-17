@@ -1,22 +1,38 @@
 'use client';
-import { Title } from './components/common/Title';
-import { AddTodo } from './components/todo/AddTodo';
-import { KanbanBoard } from './components/todo/KanbanBoard';
+import { Board } from './components/board/Board';
+import { TodoBoard } from './components/todo/TodoBoard';
+import { useTodoContext } from './context/TodoContext';
 
 export default function Home() {
+  const { selectedBoard } = useTodoContext();
 
   return (
     <main className={style.main}>
-      <div className={style.wrapper}>
-        <Title content={'Things to do'} />
-        <AddTodo />
-        <KanbanBoard />
-      </div>
-    </main>
+      <Board
+        className={`
+          ${style.wrapper.common} 
+          ${style.wrapper.board}
+        `} />
+
+      <TodoBoard
+        className={`
+          ${style.wrapper.common} 
+          ${style.wrapper.todo}
+        `}
+        {...selectedBoard} />
+    </main >
   );
 }
 
 const style = {
-  main: 'min-w-[320px] max-w-[1200px] min-h-screen px-4 py-20 mx-auto sm:px-8',
-  wrapper: 'flex flex-col gap-8',
+  main: `
+    min-w-[320px] max-w-[900px] min-h-screen
+    flex items-stretch
+    mx-auto
+  `,
+  wrapper: {
+    common: 'flex flex-col gap-4 px-4 py-20',
+    board: 'flex-2 bg-gray-50 mx-auto sm:px-4',
+    todo: 'flex-1  sm:px-8',
+  }
 };

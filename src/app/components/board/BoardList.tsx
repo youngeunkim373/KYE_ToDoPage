@@ -1,28 +1,29 @@
 import { Droppable } from "@hello-pangea/dnd";
 
 import { useTodoContext } from "@/app/context/TodoContext";
-import { TodoItem } from "./TodoItem";
+import { BoardItem } from "./BoardItem";
 
-export function TodoList() {
-  const { selectedBoard } = useTodoContext();
+export function BoardList() {
+  const { list } = useTodoContext();
 
   return (
-    <Droppable droppableId={selectedBoard.id}>
+    <Droppable droppableId={'board'}>
       {(provided, snapshot) => (
         <ul
           className={style.list}
           ref={provided.innerRef}
           {...provided.droppableProps}>
-          {selectedBoard.items.length > 0 ? (
-            selectedBoard.items.map((todo, index) => (
-              <TodoItem
-                key={todo.id}
+          {list.length > 0 ? (
+            list.map((board, index) => (
+              <BoardItem
+                key={board.id}
+                id={board.id}
                 index={index}
-                {...todo} />
+                title={board.title} />
             ))) : (
             !snapshot.isDraggingOver && (
               <li className={style.empty}>
-                할 일을 등록해주세요
+                목록을 등록해주세요
               </li>
             )
           )}

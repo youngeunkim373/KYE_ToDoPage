@@ -1,15 +1,5 @@
 export interface TodoItemProps {
-  id: number;
+  id: string;
   content: string;
+  status: boolean;
 }
-
-export enum TodoStatus {
-  'TODO' = 'TODO',
-  'INPROGRESS' = 'INPROGRESS',
-  'DONE' = 'DONE',
-};
-export const TodoStatusLabelRecord: Record<TodoStatus, string> = {
-  TODO: 'To do',
-  INPROGRESS: 'In progress',
-  DONE: 'Done',
-};
