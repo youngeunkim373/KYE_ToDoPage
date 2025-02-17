@@ -8,7 +8,11 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   };
 
   return (
-    <div className={style.wrapper}>
+    <div
+      className={`
+        ${style.wrapper.common} 
+        ${props.readOnly ? style.wrapper.readonly : style.wrapper.normal}
+      `}>
       <input
         className={style.input}
         ref={ref}
@@ -25,15 +29,11 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
 Input.displayName = 'Input';
 
 const style = {
-  wrapper: `
-    w-full 
-    relative
-    flex items-center
-    bg-white
-    ring-1 ring-inset ring-blue rounded-md
-    px-4 py-2
-    focus-within:ring-[1.3px]
-  `,
+  wrapper: {
+    common: 'w-full relative flex items-center ring-1 ring-inset rounded-md px-4 py-2',
+    normal: 'bg-white ring-blue focus-within:ring-[1.3px]',
+    readonly: 'bg-transparent ring-transparent'
+  },
   input: `
     text-base
     w-full

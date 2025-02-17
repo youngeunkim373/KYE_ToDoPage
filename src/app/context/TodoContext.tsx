@@ -42,6 +42,22 @@ const useTodo = () => {
     });
   };
 
+  const editItem = ({ id, status }: {
+    id: TodoItemProps['id'],
+    status: TodoStatus,
+  }) => {
+    const item: TodoItemProps = {
+      id: Date.now(),
+      content,
+    };
+
+    setList((prev) => {
+      const newList = { ...prev, 'TODO': [...prev.TODO, item] };
+      saveToStorage(newList);
+      return newList;
+    });
+  };
+
   const removeItem = ({ id, status }: {
     id: TodoItemProps['id'],
     status: TodoStatus,
@@ -77,6 +93,7 @@ const useTodo = () => {
   return {
     list,
     addItem,
+    editItem,
     removeItem,
     onDragEndReorderItems,
   };
