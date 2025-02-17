@@ -1,4 +1,4 @@
-export interface TodoItem {
+export interface TodoItemProps {
   id: number;
   content: string;
 }

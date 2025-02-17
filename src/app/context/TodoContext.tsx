@@ -1,7 +1,7 @@
 'use client';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { DropResult } from '@hello-pangea/dnd';
-import { TodoItem, TodoStatus } from '../components/todo/todo.interface';
+import { TodoItemProps, TodoStatus } from '../components/todo/todo.interface';
 
 const TodoContext = createContext<ReturnType<typeof useTodo> | null>(null);
 
@@ -11,12 +11,12 @@ const initialList = {
   'DONE': [],
 };
 
-const saveToStorage = (list: Record<TodoStatus, TodoItem[]>) => {
+const saveToStorage = (list: Record<TodoStatus, TodoItemProps[]>) => {
   localStorage.setItem('list', JSON.stringify(list));
 };
 
 const useTodo = () => {
-  const [list, setList] = useState<Record<TodoStatus, TodoItem[]>>(initialList);
+  const [list, setList] = useState<Record<TodoStatus, TodoItemProps[]>>(initialList);
 
   const getList = () => {
     try {
@@ -29,8 +29,8 @@ const useTodo = () => {
     }
   };
 
-  const addItem = (content: TodoItem['content']) => {
-    const item: TodoItem = {
+  const addItem = (content: TodoItemProps['content']) => {
+    const item: TodoItemProps = {
       id: Date.now(),
       content,
     };
@@ -43,7 +43,7 @@ const useTodo = () => {
   };
 
   const removeItem = ({ id, status }: {
-    id: TodoItem['id'],
+    id: TodoItemProps['id'],
     status: TodoStatus,
   }) => {
     setList((prev) => {
