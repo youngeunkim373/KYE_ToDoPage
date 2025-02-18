@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 주요 기능
 
-## Getting Started
+## 1. 보드 생성
+https://github.com/user-attachments/assets/2a601762-0ef0-47b9-bf00-bb9a96eb093b
 
-First, run the development server:
+## 2. 보드 수정
+https://github.com/user-attachments/assets/8db90724-74c6-4417-9ad5-f88a909ea650
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 3. 보드 삭제
+https://github.com/user-attachments/assets/aae0d81b-b30c-46da-b2e6-563227930682
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 4. 보드 순서 변경
+https://github.com/user-attachments/assets/b91b6727-59fa-4ae4-8f49-6482690d9950
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 5. 할일 생성
+https://github.com/user-attachments/assets/bfcd17c3-a02e-497f-b88a-bb47abbe801b
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 6. 할일 수정
+https://github.com/user-attachments/assets/54127206-1bf7-4eef-81c7-e5dcaf34c01d
 
-## Learn More
+## 7. 할일 삭제
+https://github.com/user-attachments/assets/f4af81cd-f95c-41aa-8a5e-25d0775352f0
 
-To learn more about Next.js, take a look at the following resources:
+## 8. 할일 순서 변경
+https://github.com/user-attachments/assets/f64fe627-4c22-45e1-aee3-7787da2ec296
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 9. 할일이 속한 보드 변경하기
+https://github.com/user-attachments/assets/7b3b7b77-2da9-4142-8131-48d723556c75
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
