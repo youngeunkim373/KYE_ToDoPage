@@ -1,9 +1,11 @@
 'use client';
+import { DropResult } from '@hello-pangea/dnd';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { BoardProps } from '../components/board/board.interface';
 import { TodoItemProps } from '../components/todo/todo.interface';
+import { reorderInSameList } from '../utils/dnd.utils';
 
 const TodoContext = createContext<ReturnType<typeof useTodo> | null>(null);
 
@@ -21,6 +23,7 @@ const useTodo = () => {
     setSelectedBoard(null);
     localStorage.removeItem('list');
   };
+
   const saveList = (list: BoardProps[]) => {
     setList(list);
     saveStorage(list);
@@ -131,6 +134,70 @@ const useTodo = () => {
     saveSelectedBoard(newList);
   };
 
+  /* -------------------- drag & drop -------------------- */
+  const reorderBoard = (startIndex: number, endIndex: number) => {
+    const newList = reorderInSameList<BoardProps>({ list, startIndex, endIndex });
+    saveList(newList);
+  }
+
+  const reorderTodo = (startIndex: number, endIndex: number) => {
+    if (!selectedBoard) return;
+
+    const newBoard = reorderInSameList({
+      list: selectedBoard.items,
+      startIndex,
+      endIndex,
+    });
+
+    const newList = list.map(board => (
+      board.id === selectedBoard.id
+        ? { ...board, items: newBoard }
+        : board
+    ));
+
+    saveList(newList);
+    saveSelectedBoard(newList);
+  }
+
+  const reorderOnDragEnd = (result: DropResult) => {
+    const { source, destination, draggableId, combine } = result;
+
+    const isSourceBoard = source.droppableId.includes('board-');
+    const isDestinationBoard = destination && destination?.droppableId.includes('board-');
+
+    // Todo -> Board
+    // 같은 보드끼리는 이동해도 아무런 상호작용 X
+    const isSameBoard = source.droppableId === combine?.draggableId;
+    if (combine?.droppableId.includes('board-') && !isSameBoard) {
+      const selectedTodo = selectedBoard?.items.find(todo => todo.id === draggableId);
+
+      if (selectedTodo) {
+        const newList = list.map(board => {
+          if (combine.droppableId.includes(board.id)) {
+            return { ...board, items: [...board.items, selectedTodo] };
+          } else if (board.id === source.droppableId) {
+            return { ...board, items: board.items.filter(todo => todo.id !== draggableId) };
+          } else {
+            return board;
+          }
+        });
+
+        saveList(newList);
+        saveSelectedBoard(newList);
+      }
+    }
+    // Board 내에서 이동
+    else if (isSourceBoard && isDestinationBoard) {
+      reorderBoard(source.index, destination.index);
+    }
+    // Todo 내에서 이동
+    else if (!isSourceBoard && !isDestinationBoard) {
+      if (destination) {
+        reorderTodo(source.index, destination.index);
+      }
+    }
+  };
+
   useEffect(() => {
     getList();
   }, []);
@@ -144,6 +211,8 @@ const useTodo = () => {
     addTodo,
     editTodo,
     removeTodo,
+    changeSelectedBoard,
+    reorderOnDragEnd,
   };
 };
 

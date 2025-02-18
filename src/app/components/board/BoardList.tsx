@@ -7,10 +7,11 @@ export function BoardList() {
   return (
     <ul className={style.list} >
       {list.length > 0 ? (
-        list.map((board) => (
+        list.map((board, index) => (
           <BoardItem
             key={board.id}
             id={board.id}
+            index={index}
             title={board.title} />
         ))) : (
         <li className={style.empty}>
