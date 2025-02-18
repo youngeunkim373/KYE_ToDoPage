@@ -18,9 +18,9 @@ const useTodo = () => {
   /* -------------------- Common -------------------- */
   const initializeList = () => {
     saveList([]);
+    setSelectedBoard(null);
     localStorage.removeItem('list');
   };
-
   const saveList = (list: BoardProps[]) => {
     setList(list);
     saveStorage(list);
@@ -57,6 +57,7 @@ const useTodo = () => {
       initializeList();
     };
   };
+
   const addBoard = (title: BoardProps['title']) => {
     const newBoard: BoardProps = {
       id: uuidv4(),
@@ -65,8 +66,8 @@ const useTodo = () => {
     };
 
     const newList = [...list, newBoard];
-
     saveList(newList);
+    changeSelectedBoard(newList, newBoard.id);
   };
 
   const editBoard = ({ id, title }: {
@@ -75,11 +76,13 @@ const useTodo = () => {
   }) => {
     const newList = list.map(board => board.id === id ? { ...board, title } : board);
     saveList(newList);
+    changeSelectedBoard(newList, id);
   };
 
   const removeBoard = (id: BoardProps['id']) => {
     const newList = Array.from(list).filter(board => board.id !== id);
     saveList(newList);
+    changeSelectedBoard(newList, newList[0]?.id);
   };
 
   /* -------------------- Todo -------------------- */
@@ -128,7 +131,6 @@ const useTodo = () => {
     saveSelectedBoard(newList);
   };
 
-  // 리스트 정보 가져오기
   useEffect(() => {
     getList();
   }, []);
