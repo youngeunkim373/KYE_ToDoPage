@@ -211,6 +211,7 @@ const useTodo = () => {
     addTodo,
     editTodo,
     removeTodo,
+    changeSelectedBoard,
     reorderOnDragEnd,
   };
 };

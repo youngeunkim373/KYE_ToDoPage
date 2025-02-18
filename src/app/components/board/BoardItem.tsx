@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function BoardItem({ id, index, title }: Props) {
-  const { editBoard, removeBoard } = useTodoContext();
+  const { list, changeSelectedBoard, editBoard, removeBoard } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
@@ -50,6 +50,7 @@ export function BoardItem({ id, index, title }: Props) {
             {(draggableProvided) => (
               <li
                 className={style.item}
+                onClick={() => changeSelectedBoard(list, id)}
                 ref={draggableProvided.innerRef}
                 {...draggableProvided.draggableProps}
                 {...draggableProvided.dragHandleProps}>
