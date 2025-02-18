@@ -12,14 +12,21 @@ export function TodoBoard({ className = '' }: Props) {
 
   return (
     <section className={className}>
-      <Title
-        className={`
-            text-4xl font-medium
-            ${selectedBoard?.title ? 'visible' : 'invisible'}
-            `}
-        content={selectedBoard?.title ?? ''} />
-      <AddTodo />
-      <TodoList />
+      {!selectedBoard ? (
+        <span className={style.empty}>나의 목록을 만들어주세요!</span>
+      ) : (
+        <>
+          <Title
+            className={`text-4xl font-medium min-h-[40px]`}
+            content={selectedBoard?.title ?? ''} />
+          <AddTodo />
+          <TodoList />
+        </>
+      )}
     </section>
   );
+}
+
+const style = {
+  empty: 'flex justify-center items-center my-auto'
 }
