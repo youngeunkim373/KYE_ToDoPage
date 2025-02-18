@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function TodoItem({ id, content }: Props) {
-  const { editTodo } = useTodoContext();
+  const { editTodo, removeTodo } = useTodoContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
 
@@ -54,7 +54,7 @@ export function TodoItem({ id, content }: Props) {
         <button onClick={() => setEditable(true)} >
           <Edit className={`${style.icon.common} ${style.icon.edit}`} />
         </button>
-        <button>
+        <button onClick={() => removeTodo(id)} >
           <Trash className={`${style.icon.common} ${style.icon.remove}`} />
         </button>
       </div>
