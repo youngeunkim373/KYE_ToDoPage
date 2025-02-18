@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { BoardProps } from '../components/board/board.interface';
 import { TodoItemProps } from '../components/todo/todo.interface';
+import { DropResult } from '@hello-pangea/dnd';
 
 const TodoContext = createContext<ReturnType<typeof useTodo> | null>(null);
 
@@ -131,6 +132,11 @@ const useTodo = () => {
     saveSelectedBoard(newList);
   };
 
+  /* -------------------- drag & drop -------------------- */
+  const reorderOnDragEnd = (result: DropResult) => {
+    console.log(result);
+  };
+
   useEffect(() => {
     getList();
   }, []);
@@ -144,6 +150,7 @@ const useTodo = () => {
     addTodo,
     editTodo,
     removeTodo,
+    reorderOnDragEnd,
   };
 };
 

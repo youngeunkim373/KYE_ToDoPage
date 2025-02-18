@@ -1,19 +1,20 @@
+import { Draggable } from "@hello-pangea/dnd";
 import { useEffect, useRef, useState } from "react";
 
 import { Bars } from "@/app/assets/icons/Bars";
 import { Edit } from "@/app/assets/icons/Edit";
 import { Trash } from "@/app/assets/icons/Trash";
-import { Input } from "../common/Input";
 import { useTodoContext } from "@/app/context/TodoContext";
+import { Input } from "../common/Input";
 import { TodoItemProps } from "./todo.interface";
 
-interface Props {
-  id: TodoItemProps['id'];
-  content: string;
+interface Props extends TodoItemProps {
+  index: number;
 }
 
-export function TodoItem({ id, content }: Props) {
+export function TodoItem({ id, content, index }: Props) {
   const { editTodo, removeTodo } = useTodoContext();
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
 
@@ -33,32 +34,43 @@ export function TodoItem({ id, content }: Props) {
   }, [isEditable]);
 
   return (
-    <li className={style.item}>
-      <Bars className={style.icon.common} />
+    <Draggable
+      key={id}
+      draggableId={id}
+      index={index}>
+      {(provided) => (
+        <li
+          className={style.item}
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}>
+          <Bars className={style.icon.common} />
 
-      <div className={style.content.wrapper}>
-        {isEditable ? (
-          <Input
-            allowClear={false}
-            className={style.content.input}
-            defaultValue={content}
-            ref={inputRef} />
-        ) : (
-          <span className={style.content.span}>
-            {content}
-          </span>
-        )}
-      </div>
+          <div className={style.content.wrapper}>
+            {isEditable ? (
+              <Input
+                allowClear={false}
+                className={style.content.input}
+                defaultValue={content}
+                ref={inputRef} />
+            ) : (
+              <span className={style.content.span}>
+                {content}
+              </span>
+            )}
+          </div>
 
-      <div className={style.buttons.wrapper}>
-        <button onClick={() => setEditable(true)} >
-          <Edit className={`${style.icon.common} ${style.icon.edit}`} />
-        </button>
-        <button onClick={() => removeTodo(id)} >
-          <Trash className={`${style.icon.common} ${style.icon.remove}`} />
-        </button>
-      </div>
-    </li>
+          <div className={style.buttons.wrapper}>
+            <button onClick={() => setEditable(true)} >
+              <Edit className={`${style.icon.common} ${style.icon.edit}`} />
+            </button>
+            <button onClick={() => removeTodo(id)} >
+              <Trash className={`${style.icon.common} ${style.icon.remove}`} />
+            </button>
+          </div>
+        </li>
+      )}
+    </Draggable >
   );
 }
 
