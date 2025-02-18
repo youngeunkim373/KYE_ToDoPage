@@ -46,7 +46,7 @@ const useTodo = () => {
         const parsedList = JSON.parse(storedList);
 
         if (parsedList.length === 0) {
-          initializeList();
+          return initializeList();
         }
 
         setList(parsedList);
