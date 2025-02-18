@@ -1,10 +1,11 @@
 'use client';
+import { DropResult } from '@hello-pangea/dnd';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { BoardProps } from '../components/board/board.interface';
 import { TodoItemProps } from '../components/todo/todo.interface';
-import { DropResult } from '@hello-pangea/dnd';
+import { reorderInSameList } from '../utils/dnd.utils';
 
 const TodoContext = createContext<ReturnType<typeof useTodo> | null>(null);
 
@@ -133,8 +134,37 @@ const useTodo = () => {
   };
 
   /* -------------------- drag & drop -------------------- */
+  const reorderTodo = (startIndex: number, endIndex: number) => {
+    if (!selectedBoard) return;
+
+    const newBoard = reorderInSameList({
+      list: selectedBoard.items,
+      startIndex,
+      endIndex,
+    });
+
+    const newList = list.map(board => (
+      board.id === selectedBoard.id
+        ? { ...board, items: newBoard }
+        : board
+    ));
+
+    saveList(newList);
+    saveSelectedBoard(newList);
+  }
+
   const reorderOnDragEnd = (result: DropResult) => {
-    console.log(result);
+    const { source, destination } = result;
+
+    const isSourceBoard = source.droppableId.includes('board-');
+    const isDestinationBoard = destination && destination?.droppableId.includes('board-');
+
+    // Todo 내에서 이동
+    if (!isSourceBoard && !isDestinationBoard) {
+      if (destination) {
+        reorderTodo(source.index, destination.index);
+      }
+    }
   };
 
   useEffect(() => {
