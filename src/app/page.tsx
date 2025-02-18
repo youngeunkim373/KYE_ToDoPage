@@ -24,7 +24,6 @@ const style = {
   main: `
     min-w-[320px] max-w-[900px] min-h-screen
     flex items-stretch
-    mx-auto
   `,
   wrapper: {
     common: 'flex flex-col gap-4 px-4 py-20',
