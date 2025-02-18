@@ -1,5 +1,3 @@
-import { DragDropContext } from '@hello-pangea/dnd';
-
 import { useTodoContext } from '@/app/context/TodoContext';
 import { Title } from '../common/Title';
 import { AddTodo } from './AddTodo';
@@ -10,17 +8,17 @@ interface Props {
 }
 
 export function TodoBoard({ className = '' }: Props) {
-  const { selectedBoard, reorderTodoOnDragEnd } = useTodoContext();
+  const { selectedBoard } = useTodoContext();
 
   return (
-    <DragDropContext onDragEnd={reorderTodoOnDragEnd}>
-      <section className={className}>
+    <section className={className}>
+      {selectedBoard && (
         <Title
-          className={'!text-4xl !font-medium'}
+          className={'text-4xl font-medium'}
           content={selectedBoard.title} />
-        <AddTodo />
-        <TodoList />
-      </section>
-    </DragDropContext>
+      )}
+      <AddTodo />
+      <TodoList />
+    </section>
   );
 }

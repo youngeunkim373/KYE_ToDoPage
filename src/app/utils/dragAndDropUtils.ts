@@ -8,3 +8,7 @@ export const reorderInSameList = <T>({ list, startIndex, endIndex }: {
   newList.splice(endIndex, 0, removed);
   return newList;
 };
+
+export const formatBoardName = (name: string): string => {
+  return 'board-' + name;
+}

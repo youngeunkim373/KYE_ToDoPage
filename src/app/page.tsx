@@ -1,26 +1,30 @@
 'use client';
+import { DragDropContext } from '@hello-pangea/dnd';
 import { Board } from './components/board/Board';
 import { TodoBoard } from './components/todo/TodoBoard';
 import { useTodoContext } from './context/TodoContext';
 
 export default function Home() {
-  const { selectedBoard } = useTodoContext();
+  const { selectedBoard, reorderOnDragEnd } = useTodoContext();
 
   return (
-    <main className={style.main}>
-      <Board
-        className={`
+    <DragDropContext onDragEnd={reorderOnDragEnd}>
+      <main className={style.main}>
+        <Board
+          className={`
           ${style.wrapper.common} 
           ${style.wrapper.board}
         `} />
 
-      <TodoBoard
-        className={`
+        <TodoBoard
+          className={`
           ${style.wrapper.common} 
           ${style.wrapper.todo}
         `}
-        {...selectedBoard} />
-    </main >
+          {...selectedBoard} />
+      </main >
+    </DragDropContext>
+
   );
 }
 

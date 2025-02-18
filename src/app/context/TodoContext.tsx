@@ -9,16 +9,13 @@ import { reorderInSameList } from '../utils/dragAndDropUtils';
 
 const TodoContext = createContext<ReturnType<typeof useTodo> | null>(null);
 
-const initialList: BoardProps[] = [{ id: 'TODO', title: 'To do', items: [] }];
-
 const saveStorage = (list: BoardProps[]) => {
   localStorage.setItem('list', JSON.stringify(list));
 };
 
-
 const useTodo = () => {
-  const [list, setList] = useState<BoardProps[]>(initialList);
-  const [selectedBoard, setSelectedBoard] = useState<BoardProps>(initialList[0]);
+  const [list, setList] = useState<BoardProps[]>([]);
+  const [selectedBoard, setSelectedBoard] = useState<BoardProps | null>(null);
 
   /* -------------------- Common -------------------- */
   const saveList = (list: BoardProps[]) => {
@@ -27,8 +24,20 @@ const useTodo = () => {
   };
 
   const saveSelectedBoard = (list: BoardProps[]) => {
-    const updatedBoard = list.find(board => board.id === selectedBoard.id);
+    const updatedBoard = list.find(board => board.id === selectedBoard?.id);
     if (updatedBoard) setSelectedBoard(updatedBoard);
+  };
+
+  const initializeList = () => {
+    saveList([]);
+    setSelectedBoard(null);
+    localStorage.removeItem('list');
+  };
+
+  const changeSelectedBoard = (list: BoardProps[], id?: BoardProps['id']) => {
+    if (!id) return setSelectedBoard(null);
+    const newSelectedBoard = list.find(board => board.id === id);
+    if (newSelectedBoard) setSelectedBoard(newSelectedBoard);
   };
 
   /* -------------------- Board -------------------- */
@@ -38,18 +47,18 @@ const useTodo = () => {
 
       if (storedList) {
         const parsedList = JSON.parse(storedList);
+
+        if (parsedList.length === 0) {
+          initializeList();
+        }
+
         setList(parsedList);
-        setSelectedBoard(parsedList[0]);
+        changeSelectedBoard(parsedList, parsedList[0].id);
       }
     } catch (error) {
       console.error('Failed to parse list:', error);
-      saveList(initialList);
+      initializeList();
     };
-  };
-
-  const changeSelectedBoard = (id: BoardProps['id']) => {
-    const newSelectedBoard = list.find(board => board.id === id);
-    if (newSelectedBoard) setSelectedBoard(newSelectedBoard);
   };
 
   const addBoard = (title: BoardProps['title']) => {
@@ -61,6 +70,7 @@ const useTodo = () => {
 
     const newList = [...list, newBoard];
     saveList(newList);
+    changeSelectedBoard(newList, newBoard.id);
   };
 
   const editBoard = ({ id, title }: {
@@ -69,26 +79,13 @@ const useTodo = () => {
   }) => {
     const newList = list.map(board => board.id === id ? { ...board, title } : board);
     saveList(newList);
-    changeSelectedBoard(id);
+    changeSelectedBoard(newList, id);
   };
 
   const removeBoard = (id: BoardProps['id']) => {
     const newList = Array.from(list).filter(board => board.id !== id);
     saveList(newList);
-  };
-
-  const reorderBoardOnDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
-
-    if (destination) {
-      const newList = reorderInSameList({
-        list,
-        startIndex: source.index,
-        endIndex: destination.index
-      });
-
-      saveList(newList);
-    }
+    changeSelectedBoard(newList, newList[0]?.id);
   };
 
   /* -------------------- Todo -------------------- */
@@ -100,7 +97,7 @@ const useTodo = () => {
     };
 
     const newList = list.map(
-      board => board.id === selectedBoard.id
+      board => board.id === selectedBoard?.id
         ? { ...board, items: [...board.items, newTodo] }
         : board
     );
@@ -112,17 +109,16 @@ const useTodo = () => {
     id: TodoItemProps['id'],
     content: TodoItemProps['content'],
   }) => {
-    const newList = list.map(board =>
-      board.id === selectedBoard.id
-        ? {
+    const newList = list.map(board => {
+      if (board.id === selectedBoard?.id) {
+        return {
           ...board,
-          items: board.items.map(todo =>
-            todo.id === id
-              ? { ...todo, content }
-              : todo
-          ),
-        }
-        : board
+          items: board.items.map(todo => todo.id === id ? { ...todo, content } : todo),
+        };
+      } else {
+        return board;
+      }
+    }
     );
     saveList(newList);
     saveSelectedBoard(newList);
@@ -130,7 +126,7 @@ const useTodo = () => {
 
   const removeTodo = (id: TodoItemProps['id']) => {
     const newList = list.map(board =>
-      board.id === selectedBoard.id
+      board.id === selectedBoard?.id
         ? { ...board, items: board.items.filter(todo => todo.id !== id) }
         : board
     );
@@ -138,31 +134,68 @@ const useTodo = () => {
     saveSelectedBoard(newList);
   };
 
-  const reorderTodoOnDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
-    if (!destination) return;
+  /* -------------------- drag & drop -------------------- */
+  const reorderOnDragEnd = (result: DropResult) => {
+    const { source, destination, draggableId, combine } = result;
 
-    console.log(result)
-    if (source.droppableId === destination.droppableId) {
-      const newBoard = reorderInSameList({
-        list: selectedBoard.items,
-        startIndex: source.index,
-        endIndex: destination.index
-      });
+    const isSourceBoard = source.droppableId.includes('board-');
+    const isDestinationBoard = destination && destination?.droppableId.includes('board-');
 
-      const newList = list.map(board => (
-        board.id === selectedBoard.id
-          ? { ...board, items: newBoard }
-          : board
-      ));
+    // Todo -> Board
+    if (combine?.droppableId.includes('board-')) {
+      const selectedTodo = selectedBoard?.items.find(todo => todo.id === draggableId);
 
-      saveList(newList);
-      saveSelectedBoard(newList);
-    } else {
-      console.log('달라잉')
+      if (selectedTodo) {
+        const newList = list.map(board => {
+          if (combine.droppableId.includes(board.id)) {
+            return { ...board, items: [...board.items, selectedTodo] };
+          } else if (board.id === source.droppableId) {
+            return { ...board, items: board.items.filter(todo => todo.id !== draggableId) };
+          } else {
+            return board;
+          }
+        });
+
+        saveList(newList);
+        saveSelectedBoard(newList);
+      }
     }
+    // Board 내에서 이동
+    else if (isSourceBoard && isDestinationBoard) {
+      reorderBoard(source.index, destination.index);
+    }
+    // Todo 내에서 이동
+    else if (!isSourceBoard && !isDestinationBoard) {
+      if (destination) {
+        reorderTodo(source.index, destination.index);
+      }
+    }
+
   };
 
+  const reorderBoard = (startIndex: number, endIndex: number) => {
+    const newList = reorderInSameList<BoardProps>({ list, startIndex, endIndex });
+    saveList(newList);
+  }
+
+  const reorderTodo = (startIndex: number, endIndex: number) => {
+    if (!selectedBoard) return;
+
+    const newBoard = reorderInSameList({
+      list: selectedBoard.items,
+      startIndex,
+      endIndex,
+    });
+
+    const newList = list.map(board => (
+      board.id === selectedBoard.id
+        ? { ...board, items: newBoard }
+        : board
+    ));
+
+    saveList(newList);
+    saveSelectedBoard(newList);
+  }
 
   useEffect(() => {
     getList();
@@ -175,11 +208,10 @@ const useTodo = () => {
     addBoard,
     editBoard,
     removeBoard,
-    reorderBoardOnDragEnd,
     addTodo,
     editTodo,
     removeTodo,
-    reorderTodoOnDragEnd,
+    reorderOnDragEnd,
   };
 };
 

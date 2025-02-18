@@ -1,10 +1,11 @@
-import { Draggable } from "@hello-pangea/dnd";
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { useEffect, useRef, useState } from "react";
 
 import { Bars } from "@/app/assets/icons/Bars";
 import { Edit } from "@/app/assets/icons/Edit";
 import { Trash } from "@/app/assets/icons/Trash";
 import { useTodoContext } from "@/app/context/TodoContext";
+import { formatBoardName } from "@/app/utils/dragAndDropUtils";
 import { Input } from "../common/Input";
 import { BoardProps } from "./board.interface";
 
@@ -15,11 +16,12 @@ interface Props {
 }
 
 export function BoardItem({ id, index, title }: Props) {
-  const { changeSelectedBoard, editBoard, removeBoard } = useTodoContext();
+  const { list, changeSelectedBoard, editBoard, removeBoard } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
 
+  // TODO 정리
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       // TODO 아무것도 입력 안했을 때 nofi 띄우기
@@ -36,41 +38,61 @@ export function BoardItem({ id, index, title }: Props) {
   }, [isEditable]);
 
   return (
-    <Draggable draggableId={id} index={index}>
-      {(provided) => (
-        <li
-          className={style.item}
-          onClick={() => changeSelectedBoard(id)}
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}>
-          <Bars className={style.icon.common} />
+    <Droppable
+      droppableId={formatBoardName(id)}
+      isCombineEnabled>
+      {(droppableProvided) => (
+        <div
+          ref={droppableProvided.innerRef}
+          {...droppableProvided.droppableProps}>
+          <Draggable
+            key={id}
+            draggableId={id}
+            index={index}>
+            {(draggableProvided) => (
+              <li
+                className={style.item}
+                onClick={() => changeSelectedBoard(list, id)}
+                ref={draggableProvided.innerRef}
+                {...draggableProvided.draggableProps}
+                {...draggableProvided.dragHandleProps}>
+                <Bars className={style.icon.common} />
 
-          <div className={style.content.wrapper}>
-            {isEditable ? (
-              <Input
-                allowClear={false}
-                className={style.content.input}
-                defaultValue={title}
-                ref={inputRef} />
-            ) : (
-              <span className={style.content.span}>
-                {title}
-              </span>
+                <div
+                  className={style.content.wrapper}>
+                  {isEditable ? (
+                    <Input
+                      allowClear={false}
+                      className={style.content.input}
+                      defaultValue={title}
+                      ref={inputRef} />
+                  ) : (
+                    <span className={style.content.span}>
+                      {title}
+                    </span>
+                  )}
+                </div>
+
+                <div className={style.buttons.wrapper}>
+                  <button onClick={() => setEditable(true)} >
+                    <Edit className={`${style.icon.common} ${style.icon.edit}`} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeBoard(id);
+                    }}>
+                    <Trash className={`${style.icon.common} ${style.icon.remove}`} />
+                  </button>
+                </div>
+              </li>
             )}
-          </div>
-
-          <div className={style.buttons.wrapper}>
-            <button onClick={() => setEditable(true)} >
-              <Edit className={`${style.icon.common} ${style.icon.edit}`} />
-            </button>
-            <button onClick={() => removeBoard(id)} >
-              <Trash className={`${style.icon.common} ${style.icon.remove}`} />
-            </button>
-          </div>
-        </li>
-      )}
-    </Draggable >
+          </Draggable >
+          {droppableProvided.placeholder}
+        </div>
+      )
+      }
+    </Droppable >
   );
 }
 
@@ -79,7 +101,7 @@ const style = {
       max-w-[320px]
       flex items-center gap-3
       rounded-lg
-      px-4 py-2
+      px-4 py-3
       cursor-pointer
       hover:bg-white
       `,

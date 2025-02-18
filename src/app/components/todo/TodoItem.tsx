@@ -12,7 +12,7 @@ interface Props extends TodoItemProps {
   index: number;
 }
 
-export function TodoItem({ id, content, status, index }: Props) {
+export function TodoItem({ id, content, index }: Props) {
   const { editTodo, removeTodo } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,7 +34,10 @@ export function TodoItem({ id, content, status, index }: Props) {
   }, [isEditable]);
 
   return (
-    <Draggable draggableId={id} index={index}>
+    <Draggable
+      key={id}
+      draggableId={id}
+      index={index}>
       {(provided) => (
         <li
           className={style.item}
