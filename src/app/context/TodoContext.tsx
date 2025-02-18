@@ -1,5 +1,5 @@
 'use client';
-import { createContext, PropsWithChildren, useContext, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import { BoardProps } from '../components/board/board.interface';
@@ -14,12 +14,36 @@ const useTodo = () => {
   const [list, setList] = useState<BoardProps[]>([]);
 
   /* -------------------- Common -------------------- */
+  const initializeList = () => {
+    saveList([]);
+    localStorage.removeItem('list');
+  };
+
   const saveList = (list: BoardProps[]) => {
     setList(list);
     saveStorage(list);
   };
 
   /* -------------------- Board -------------------- */
+  const getList = () => {
+    try {
+      const storedList = localStorage.getItem('list');
+
+      if (storedList) {
+        const parsedList = JSON.parse(storedList);
+
+        if (parsedList.length === 0) {
+          initializeList();
+        }
+
+        setList(parsedList);
+      }
+    } catch (error) {
+      console.error('Failed to parse list:', error);
+      initializeList();
+    };
+  };
+
   const addBoard = (title: BoardProps['title']) => {
     const newBoard: BoardProps = {
       id: uuidv4(),
@@ -31,6 +55,10 @@ const useTodo = () => {
 
     saveList(newList);
   };
+
+  useEffect(() => {
+    getList();
+  }, []);
 
   return {
     list,
