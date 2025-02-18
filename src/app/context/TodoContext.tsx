@@ -3,6 +3,7 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import { v4 as uuidv4 } from 'uuid';
 
 import { BoardProps } from '../components/board/board.interface';
+import { TodoItemProps } from '../components/todo/todo.interface';
 
 const TodoContext = createContext<ReturnType<typeof useTodo> | null>(null);
 
@@ -12,6 +13,7 @@ const saveStorage = (list: BoardProps[]) => {
 
 const useTodo = () => {
   const [list, setList] = useState<BoardProps[]>([]);
+  const [selectedBoard, setSelectedBoard] = useState<BoardProps | null>(null);
 
   /* -------------------- Common -------------------- */
   const initializeList = () => {
@@ -22,6 +24,17 @@ const useTodo = () => {
   const saveList = (list: BoardProps[]) => {
     setList(list);
     saveStorage(list);
+  };
+
+  const saveSelectedBoard = (list: BoardProps[]) => {
+    const updatedBoard = list.find(board => board.id === selectedBoard?.id);
+    if (updatedBoard) setSelectedBoard(updatedBoard);
+  };
+
+  const changeSelectedBoard = (list: BoardProps[], id?: BoardProps['id']) => {
+    if (!id) return setSelectedBoard(null);
+    const newSelectedBoard = list.find(board => board.id === id);
+    if (newSelectedBoard) setSelectedBoard(newSelectedBoard);
   };
 
   /* -------------------- Board -------------------- */
@@ -37,13 +50,13 @@ const useTodo = () => {
         }
 
         setList(parsedList);
+        changeSelectedBoard(parsedList, parsedList[0].id);
       }
     } catch (error) {
       console.error('Failed to parse list:', error);
       initializeList();
     };
   };
-
   const addBoard = (title: BoardProps['title']) => {
     const newBoard: BoardProps = {
       id: uuidv4(),
@@ -69,6 +82,24 @@ const useTodo = () => {
     saveList(newList);
   };
 
+  /* -------------------- Todo -------------------- */
+  const addTodo = (content: TodoItemProps['content']) => {
+    const newTodo: TodoItemProps = {
+      id: uuidv4(),
+      content,
+      status: false,
+    };
+
+    const newList = list.map(
+      board => board.id === selectedBoard?.id
+        ? { ...board, items: [...board.items, newTodo] }
+        : board
+    );
+    saveList(newList);
+    saveSelectedBoard(newList);
+  };
+
+
   // 리스트 정보 가져오기
   useEffect(() => {
     getList();
@@ -76,9 +107,11 @@ const useTodo = () => {
 
   return {
     list,
+    selectedBoard,
     addBoard,
     editBoard,
     removeBoard,
+    addTodo,
   };
 };
 
