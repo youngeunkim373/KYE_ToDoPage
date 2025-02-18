@@ -99,6 +99,24 @@ const useTodo = () => {
     saveSelectedBoard(newList);
   };
 
+  const editTodo = ({ id, content }: {
+    id: TodoItemProps['id'],
+    content: TodoItemProps['content'],
+  }) => {
+    const newList = list.map(board => {
+      if (board.id === selectedBoard?.id) {
+        return {
+          ...board,
+          items: board.items.map(todo => todo.id === id ? { ...todo, content } : todo),
+        };
+      } else {
+        return board;
+      }
+    }
+    );
+    saveList(newList);
+    saveSelectedBoard(newList);
+  };
 
   // 리스트 정보 가져오기
   useEffect(() => {
@@ -112,6 +130,7 @@ const useTodo = () => {
     editBoard,
     removeBoard,
     addTodo,
+    editTodo,
   };
 };
 

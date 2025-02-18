@@ -1,17 +1,36 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Bars } from "@/app/assets/icons/Bars";
 import { Edit } from "@/app/assets/icons/Edit";
 import { Trash } from "@/app/assets/icons/Trash";
 import { Input } from "../common/Input";
+import { useTodoContext } from "@/app/context/TodoContext";
+import { TodoItemProps } from "./todo.interface";
 
 interface Props {
+  id: TodoItemProps['id'];
   content: string;
 }
 
-export function TodoItem({ content }: Props) {
+export function TodoItem({ id, content }: Props) {
+  const { editTodo } = useTodoContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      // TODO 아무것도 입력 안했을 때 nofi 띄우기
+      if (!inputRef.current) return;
+
+      if (isEditable && !inputRef.current.contains(e.target as Node)) {
+        if (inputRef.current.value) editTodo({ id, content: inputRef.current.value });
+        setEditable(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isEditable]);
 
   return (
     <li className={style.item}>
@@ -32,7 +51,7 @@ export function TodoItem({ content }: Props) {
       </div>
 
       <div className={style.buttons.wrapper}>
-        <button onClick={() => setEditable(prev => !prev)} >
+        <button onClick={() => setEditable(true)} >
           <Edit className={`${style.icon.common} ${style.icon.edit}`} />
         </button>
         <button>
