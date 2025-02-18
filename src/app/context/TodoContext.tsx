@@ -64,6 +64,11 @@ const useTodo = () => {
     saveList(newList);
   };
 
+  const removeBoard = (id: BoardProps['id']) => {
+    const newList = Array.from(list).filter(board => board.id !== id);
+    saveList(newList);
+  };
+
   // 리스트 정보 가져오기
   useEffect(() => {
     getList();
@@ -73,6 +78,7 @@ const useTodo = () => {
     list,
     addBoard,
     editBoard,
+    removeBoard,
   };
 };
 

@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function BoardItem({ id, title }: Props) {
-  const { editBoard } = useTodoContext();
+  const { editBoard, removeBoard } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
@@ -56,7 +56,11 @@ export function BoardItem({ id, title }: Props) {
         <button onClick={() => setEditable(true)} >
           <Edit className={`${style.icon.common} ${style.icon.edit}`} />
         </button>
-        <button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            removeBoard(id);
+          }}>
           <Trash className={`${style.icon.common} ${style.icon.remove}`} />
         </button>
       </div>
