@@ -38,10 +38,6 @@
       "error",
       "always"
     ],
-    "array-bracket-spacing": [
-      "error",
-      "always"
-    ],
     "react/jsx-curly-brace-presence": [
       "error",
       {
