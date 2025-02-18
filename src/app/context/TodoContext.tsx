@@ -134,6 +134,11 @@ const useTodo = () => {
   };
 
   /* -------------------- drag & drop -------------------- */
+  const reorderBoard = (startIndex: number, endIndex: number) => {
+    const newList = reorderInSameList<BoardProps>({ list, startIndex, endIndex });
+    saveList(newList);
+  }
+
   const reorderTodo = (startIndex: number, endIndex: number) => {
     if (!selectedBoard) return;
 
@@ -159,8 +164,12 @@ const useTodo = () => {
     const isSourceBoard = source.droppableId.includes('board-');
     const isDestinationBoard = destination && destination?.droppableId.includes('board-');
 
+    // Board 내에서 이동
+    if (isSourceBoard && isDestinationBoard) {
+      reorderBoard(source.index, destination.index);
+    }
     // Todo 내에서 이동
-    if (!isSourceBoard && !isDestinationBoard) {
+    else if (!isSourceBoard && !isDestinationBoard) {
       if (destination) {
         reorderTodo(source.index, destination.index);
       }

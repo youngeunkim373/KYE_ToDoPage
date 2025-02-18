@@ -1,18 +1,21 @@
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import { useEffect, useRef, useState } from "react";
 
 import { Bars } from "@/app/assets/icons/Bars";
 import { Edit } from "@/app/assets/icons/Edit";
 import { Trash } from "@/app/assets/icons/Trash";
 import { useTodoContext } from "@/app/context/TodoContext";
+import { formatBoardName } from "@/app/utils/dnd.utils";
 import { Input } from "../common/Input";
 import { BoardProps } from "./board.interface";
 
 interface Props {
   id: BoardProps['id'];
+  index: number;
   title: BoardProps['title'];
 }
 
-export function BoardItem({ id, title }: Props) {
+export function BoardItem({ id, index, title }: Props) {
   const { editBoard, removeBoard } = useTodoContext();
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,38 +36,60 @@ export function BoardItem({ id, title }: Props) {
   }, [isEditable]);
 
   return (
-    <li
-      className={style.item}>
-      <Bars className={style.icon.common} />
+    <Droppable
+      droppableId={formatBoardName(id)}
+      isCombineEnabled>
+      {(droppableProvided) => (
+        <div
+          ref={droppableProvided.innerRef}
+          {...droppableProvided.droppableProps}>
+          <Draggable
+            key={id}
+            draggableId={id}
+            index={index}>
+            {(draggableProvided) => (
+              <li
+                className={style.item}
+                ref={draggableProvided.innerRef}
+                {...draggableProvided.draggableProps}
+                {...draggableProvided.dragHandleProps}>
+                <Bars className={style.icon.common} />
 
-      <div
-        className={style.content.wrapper}>
-        {isEditable ? (
-          <Input
-            allowClear={false}
-            className={style.content.input}
-            defaultValue={title}
-            ref={inputRef} />
-        ) : (
-          <span className={style.content.span}>
-            {title}
-          </span>
-        )}
-      </div>
+                <div
+                  className={style.content.wrapper}>
+                  {isEditable ? (
+                    <Input
+                      allowClear={false}
+                      className={style.content.input}
+                      defaultValue={title}
+                      ref={inputRef} />
+                  ) : (
+                    <span className={style.content.span}>
+                      {title}
+                    </span>
+                  )}
+                </div>
 
-      <div className={style.buttons.wrapper}>
-        <button onClick={() => setEditable(true)} >
-          <Edit className={`${style.icon.common} ${style.icon.edit}`} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            removeBoard(id);
-          }}>
-          <Trash className={`${style.icon.common} ${style.icon.remove}`} />
-        </button>
-      </div>
-    </li>
+                <div className={style.buttons.wrapper}>
+                  <button onClick={() => setEditable(true)} >
+                    <Edit className={`${style.icon.common} ${style.icon.edit}`} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeBoard(id);
+                    }}>
+                    <Trash className={`${style.icon.common} ${style.icon.remove}`} />
+                  </button>
+                </div>
+              </li>
+            )}
+          </Draggable >
+          {droppableProvided.placeholder}
+        </div>
+      )
+      }
+    </Droppable >
   );
 }
 
