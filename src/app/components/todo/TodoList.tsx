@@ -1,23 +1,17 @@
+import { useTodoContext } from "@/app/context/TodoContext";
 import { TodoItem } from "./TodoItem";
 
-const testList = [
-  { id: 'workout1', content: '운동하기1', status: false },
-  { id: 'workout2', content: '운동하기2', status: false },
-  { id: 'workout3', content: '운동하기3', status: false },
-];
-
 export function TodoList() {
+  const { selectedBoard } = useTodoContext();
 
   return (
-    <ul
-      className={style.list}>
-      {testList.map((todo, index) => (
+    <ul className={style.list}>
+      {(selectedBoard?.items ?? []).map((todo) => (
         <TodoItem
           key={todo.id}
           {...todo} />
       ))}
     </ul>
-
   );
 }
 

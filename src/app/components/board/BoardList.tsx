@@ -1,19 +1,16 @@
+import { useTodoContext } from "@/app/context/TodoContext";
 import { BoardItem } from "./BoardItem";
 
-const testList = [
-  { id: 'TODO', title: 'To do' },
-  { id: 'INPROGRESS', title: 'In progress' },
-  { id: 'DONE', title: 'done' },
-];
-
 export function BoardList() {
+  const { list } = useTodoContext();
 
   return (
     <ul className={style.list} >
-      {testList.length > 0 ? (
-        testList.map((board) => (
+      {list.length > 0 ? (
+        list.map((board) => (
           <BoardItem
             key={board.id}
+            id={board.id}
             title={board.title} />
         ))) : (
         <li className={style.empty}>
