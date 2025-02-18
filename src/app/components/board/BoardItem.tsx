@@ -96,7 +96,6 @@ export function BoardItem({ id, index, title }: Props) {
 
 const style = {
   item: `
-      max-w-[320px]
       flex items-center gap-3
       rounded-lg
       px-4 py-3
