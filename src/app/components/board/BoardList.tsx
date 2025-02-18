@@ -10,6 +10,7 @@ export function BoardList() {
         list.map((board) => (
           <BoardItem
             key={board.id}
+            id={board.id}
             title={board.title} />
         ))) : (
         <li className={style.empty}>

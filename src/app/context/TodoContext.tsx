@@ -56,6 +56,15 @@ const useTodo = () => {
     saveList(newList);
   };
 
+  const editBoard = ({ id, title }: {
+    id: BoardProps['id'],
+    title: BoardProps['title'],
+  }) => {
+    const newList = list.map(board => board.id === id ? { ...board, title } : board);
+    saveList(newList);
+  };
+
+  // 리스트 정보 가져오기
   useEffect(() => {
     getList();
   }, []);
@@ -63,6 +72,7 @@ const useTodo = () => {
   return {
     list,
     addBoard,
+    editBoard,
   };
 };
 

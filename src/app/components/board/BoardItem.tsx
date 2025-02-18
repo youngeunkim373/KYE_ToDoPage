@@ -1,18 +1,36 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Bars } from "@/app/assets/icons/Bars";
 import { Edit } from "@/app/assets/icons/Edit";
 import { Trash } from "@/app/assets/icons/Trash";
+import { useTodoContext } from "@/app/context/TodoContext";
 import { Input } from "../common/Input";
 import { BoardProps } from "./board.interface";
 
 interface Props {
+  id: BoardProps['id'];
   title: BoardProps['title'];
 }
 
-export function BoardItem({ title }: Props) {
+export function BoardItem({ id, title }: Props) {
+  const { editBoard } = useTodoContext();
+
   const inputRef = useRef<HTMLInputElement>(null);
   const [isEditable, setEditable] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!inputRef.current) return;
+
+      if (isEditable && !inputRef.current.contains(e.target as Node)) {
+        if (inputRef.current.value) editBoard({ id, title: inputRef.current.value });
+        setEditable(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isEditable]);
 
   return (
     <li
@@ -35,7 +53,7 @@ export function BoardItem({ title }: Props) {
       </div>
 
       <div className={style.buttons.wrapper}>
-        <button onClick={() => setEditable(prev => !prev)}>
+        <button onClick={() => setEditable(true)} >
           <Edit className={`${style.icon.common} ${style.icon.edit}`} />
         </button>
         <button>
