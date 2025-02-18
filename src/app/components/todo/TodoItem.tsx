@@ -1,4 +1,4 @@
-import { Draggable } from "@hello-pangea/dnd";
+import { Draggable, DraggableStateSnapshot, DraggableStyle } from "@hello-pangea/dnd";
 import { useEffect, useRef, useState } from "react";
 
 import { Bars } from "@/app/assets/icons/Bars";
@@ -33,17 +33,29 @@ export function TodoItem({ id, content, index }: Props) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isEditable]);
 
+  function getStyle(style: DraggableStyle = {}, snapshot: DraggableStateSnapshot) {
+    if (!snapshot.combineWith) {
+      return style;
+    }
+    return {
+      ...style,
+      backgroundColor: '#eff6ff',
+      transition: `all 0.1s`,
+    };
+  }
+
   return (
     <Draggable
       key={id}
       draggableId={id}
       index={index}>
-      {(provided) => (
+      {(provided, snapshot) => (
         <li
           className={style.item}
           ref={provided.innerRef}
           {...provided.draggableProps}
-          {...provided.dragHandleProps}>
+          {...provided.dragHandleProps}
+          style={getStyle(provided.draggableProps.style, snapshot)}>
           <Bars className={style.icon.common} />
 
           <div className={style.content.wrapper}>
