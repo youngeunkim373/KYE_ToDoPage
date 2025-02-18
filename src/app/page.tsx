@@ -26,15 +26,15 @@ export default function Home() {
     </DragDropContext>
   );
 }
-
 const style = {
   main: `
-    min-w-[320px] max-w-[900px] min-h-screen
-    flex items-stretch
+    w-full max-w-screen min-w-[320px] min-h-screen
+    grid grid-cols-[minmax(200px,1fr)_minmax(200px,3fr)]
+
   `,
   wrapper: {
-    common: 'flex flex-col gap-4 px-4 py-20',
-    board: 'flex-2 bg-gray-50 mx-auto sm:px-4',
-    todo: 'flex-1  sm:px-8',
+    common: 'max-w-full flex flex-col gap-4 px-4 py-20',
+    board: 'bg-gray-50 sm:px-4',
+    todo: 'sm:px-8',
   }
 };
