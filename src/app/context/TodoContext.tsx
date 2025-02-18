@@ -142,7 +142,9 @@ const useTodo = () => {
     const isDestinationBoard = destination && destination?.droppableId.includes('board-');
 
     // Todo -> Board
-    if (combine?.droppableId.includes('board-')) {
+    // 같은 보드끼리는 이동해도 아무런 상호작용 X
+    const isSameBoard = source.droppableId === combine?.draggableId;
+    if (combine?.droppableId.includes('board-') && !isSameBoard) {
       const selectedTodo = selectedBoard?.items.find(todo => todo.id === draggableId);
 
       if (selectedTodo) {
@@ -170,7 +172,6 @@ const useTodo = () => {
         reorderTodo(source.index, destination.index);
       }
     }
-
   };
 
   const reorderBoard = (startIndex: number, endIndex: number) => {
