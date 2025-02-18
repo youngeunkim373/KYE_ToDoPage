@@ -23,6 +23,7 @@ const useTodo = () => {
     setSelectedBoard(null);
     localStorage.removeItem('list');
   };
+
   const saveList = (list: BoardProps[]) => {
     setList(list);
     saveStorage(list);
@@ -159,13 +160,34 @@ const useTodo = () => {
   }
 
   const reorderOnDragEnd = (result: DropResult) => {
-    const { source, destination } = result;
+    const { source, destination, draggableId, combine } = result;
 
     const isSourceBoard = source.droppableId.includes('board-');
     const isDestinationBoard = destination && destination?.droppableId.includes('board-');
 
+    // Todo -> Board
+    // 같은 보드끼리는 이동해도 아무런 상호작용 X
+    const isSameBoard = source.droppableId === combine?.draggableId;
+    if (combine?.droppableId.includes('board-') && !isSameBoard) {
+      const selectedTodo = selectedBoard?.items.find(todo => todo.id === draggableId);
+
+      if (selectedTodo) {
+        const newList = list.map(board => {
+          if (combine.droppableId.includes(board.id)) {
+            return { ...board, items: [...board.items, selectedTodo] };
+          } else if (board.id === source.droppableId) {
+            return { ...board, items: board.items.filter(todo => todo.id !== draggableId) };
+          } else {
+            return board;
+          }
+        });
+
+        saveList(newList);
+        saveSelectedBoard(newList);
+      }
+    }
     // Board 내에서 이동
-    if (isSourceBoard && isDestinationBoard) {
+    else if (isSourceBoard && isDestinationBoard) {
       reorderBoard(source.index, destination.index);
     }
     // Todo 내에서 이동
